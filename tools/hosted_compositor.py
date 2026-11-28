@@ -125,8 +125,16 @@ def tab(s, rep):
     s = rep(s, '''        appliedRestingTint = restingTint
         let lensTint = vibrantTint(selectedTintColor, over: lensBackdropColor, plus: lensTintBrightening)
 ''', '''        appliedRestingTint = restingTint
-        let lensTint = hostedTint ?? vibrantTint(selectedTintColor, over: lensBackdropColor, plus: lensTintBrightening)
+        let lensTint = ngUseHostPosition && isDarkAppearance
+            ? restingTint
+            : (hostedTint ?? vibrantTint(selectedTintColor, over: lensBackdropColor, plus: lensTintBrightening))
 ''')
+    a = s.index('    private func refreshVibrantTints() {')
+    b = s.index('    func unselectedTint()', a)
+    refresh = rep(s[a:b], '            let lensTint = vibrantTint(selectedTintColor, over: lensBackdropColor, plus: lensTintBrightening)', '''            let lensTint = ngUseHostPosition && isDarkAppearance
+                ? (appliedRestingTint ?? vibrantTint(selectedTintColor, over: selectionView.renderedCenterColor ?? selectionView.captureVeilColor))
+                : vibrantTint(selectedTintColor, over: lensBackdropColor, plus: lensTintBrightening)''')
+    s = s[:a] + refresh + s[b:]
     s = rep(s, '''    private func updateHoveredItem(lensCenterX: CGFloat) {
         guard isDragging, !itemViews.isEmpty else { return }''', '''    private func updateHoveredItem(lensCenterX: CGFloat) {
         guard !ngUseHostPosition, isDragging, !itemViews.isEmpty else { return }''')

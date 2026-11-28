@@ -20,7 +20,7 @@ from build import make_deb, PKG, VERSION, verify_tar_layout
 
 def check():
     verify_vendor()
-    assert PKG == 'com.ning.27tabbar' and VERSION == '0.2.29'
+    assert PKG == 'com.ning.27tabbar' and VERSION == '0.2.30'
     for file in [*ROOT.glob('tools/*.py'), *ROOT.glob('tests/*.py')]:
         ast.parse(file.read_text(), filename=str(file))
     bridge = (ROOT/'Sources/Bridge.swift').read_text()
@@ -137,7 +137,11 @@ def check():
         assert 'showsSelectedIcon: isSelected && !(ngUseHostPosition && isDragging)' in tab
         assert 'let hostedTint = ngUseHostPosition && !isDarkAppearance' in tab
         assert 'hostedTint ?? vibrantTint(selectedTintColor, over: selectionView.renderedCenterColor ?? selectionView.captureVeilColor)' in tab
-        assert 'hostedTint ?? vibrantTint(selectedTintColor, over: lensBackdropColor, plus: lensTintBrightening)' in tab
+        tint_init = section(tab, '    private func applyItemTints(', '    /// Hides the items')
+        tint_refresh = section(tab, '    private func refreshVibrantTints()', '    func unselectedTint()')
+        assert 'let lensTint = ngUseHostPosition && isDarkAppearance\n            ? restingTint' in tint_init
+        assert 'hostedTint ?? vibrantTint(selectedTintColor, over: lensBackdropColor, plus: lensTintBrightening)' in tint_init
+        assert 'let lensTint = ngUseHostPosition && isDarkAppearance\n                ? (appliedRestingTint ?? vibrantTint(selectedTintColor, over: selectionView.renderedCenterColor ?? selectionView.captureVeilColor))' in tint_refresh
         assert 'selectedTintColor.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))' in tab
         assert 'progress - 0.72' not in shrink
         edges = section(tab, '    private func updateEdgeLayers(', '    /// One composite of chrome')

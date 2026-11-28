@@ -20,7 +20,7 @@ from build import make_deb, PKG, VERSION, verify_tar_layout
 
 def check():
     verify_vendor()
-    assert PKG == 'com.ning.27tabbar' and VERSION == '0.2.27'
+    assert PKG == 'com.ning.27tabbar' and VERSION == '0.2.28'
     for file in [*ROOT.glob('tools/*.py'), *ROOT.glob('tests/*.py')]:
         ast.parse(file.read_text(), filename=str(file))
     bridge = (ROOT/'Sources/Bridge.swift').read_text()
@@ -110,7 +110,7 @@ def check():
         assert 'glassView.ngNonblockingRendering = ngUseHostPosition' in setup
         assert 'config.edgeEffects.rimGlow = 0.25' in setup
         assert 'config.edgeEffects.glareIntensity = 0.12' in setup
-        assert 'glassView.setCaptureExcludedViews([ngExcludedBar, selectionView].compactMap { $0 })' in setup
+        assert 'if let bar = ngExcludedBar { glassView.setCaptureExcludedViews([bar]) }' in setup
         assert 'glassView.captureWillBegin' in setup and 'glassView.captureDidEnd' in setup
         assert 'lensConfig.lensFill = 1' not in setup
         assert 'contentView.bringSubviewToFront(glassView)' in setup
@@ -118,11 +118,11 @@ def check():
             assert 'contentView.insertSubview(glassView, aboveSubview: selectionView)' in phase
         assert 'self.selectionView.center = CGPoint(x: pill.midX, y: pill.midY)' in tab
         assert 'glassView.resumeRendering()' in grow and 'animator.morph(from: startFrame, to: growthTarget' in grow
-        assert 'if !self.ngUseHostPosition {\n                self.selectionView.layer.transform' in grow
+        assert 'self.selectionView.layer.transform = LensMorph.transform(mapping: pillLocal, onto: localFrame)' in grow
         assert shrink.index('let shown =') < shrink.index('stopLensStretch()')
         assert 'releaseFrame = shown' in shrink and 'animationBase = base' in shrink
         assert 'LensMorph.transform(mapping: animationBase, onto: frame)' in shrink
-        assert 'glassView.setCaptureExcludedViews([ngExcludedBar, selectionView].compactMap { $0 })' in setup
+        assert 'if let bar = ngExcludedBar { glassView.setCaptureExcludedViews([bar]) }' in setup
         assert 'ngUseHostPosition ? contentView : theseusSourceView?.superview' in tab
         assert 'if let bar = ngExcludedBar { theseusView?.setCaptureExcludedViews([bar]) }' in tab
         assert 'ngEnableSolidSelection()' in tab and 'UIColor(white: tone, alpha: 1)' in surface

@@ -139,7 +139,7 @@ def tabbar(s):
     s = replace(s, '        glassView.sourceView = sourceView\n        glassView.isHidden', '''        glassView.sourceView = sourceView
         glassView.ngNonblockingRendering = ngUseHostPosition
         glassView.ngCaptureScale = ngUseHostPosition ? 0.5 : 1
-        glassView.setCaptureExcludedViews([ngExcludedBar, selectionView].compactMap { $0 })
+        if let bar = ngExcludedBar { glassView.setCaptureExcludedViews([bar]) }
         glassView.isHidden''')
     s = replace(s, '        case .ended, .cancelled, .failed:\n            finishInteraction(rawX: gesture.location(in: self).x)', '''        case .ended:
             finishInteraction(rawX: gesture.location(in: self).x)

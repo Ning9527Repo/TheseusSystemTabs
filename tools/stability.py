@@ -58,13 +58,19 @@ def drag_tab(s, rep):
     b = s.index('    private func setLensFill(', a)
     lens = s[a:b]
     lens = rep(lens, '''        glassView.bounds = CGRect(origin: .zero, size: resting)
-        glassView.center = CGPoint(x: containerFrame.midX, y: containerFrame.midY)''', '''        glassView.bounds = CGRect(origin: .zero, size: resting)
-        glassView.center = CGPoint(x: containerFrame.midX, y: containerFrame.midY)''')
+        glassView.center = CGPoint(x: containerFrame.midX, y: containerFrame.midY)''', '''        let bounds = CGRect(origin: .zero, size: resting)
+        let center = CGPoint(x: containerFrame.midX, y: containerFrame.midY)
+        if glassView.bounds != bounds { glassView.bounds = bounds }
+        if glassView.center != center { glassView.center = center }''')
     lens = rep(lens, '''        shape.widthInset = (resting.width - containerFrame.width) / 2 - outset
         shape.heightInset = (resting.height - containerFrame.height) / 2 - outset
-        shape.cornerRadius = lensCornerRadius(forHeight: containerFrame.height + 2 * outset)''', '''        shape.widthInset = (resting.width - containerFrame.width) / 2 - outset
-        shape.heightInset = (resting.height - containerFrame.height) / 2 - outset
-        shape.cornerRadius = lensCornerRadius(forHeight: containerFrame.height + 2 * outset)''')
+        shape.cornerRadius = lensCornerRadius(forHeight: containerFrame.height + 2 * outset)''', '''        let insetX = (resting.width - containerFrame.width) / 2 - outset
+        let insetY = (resting.height - containerFrame.height) / 2 - outset
+        let radius = lensCornerRadius(forHeight: containerFrame.height + 2 * outset)
+        guard shape.widthInset != insetX || shape.heightInset != insetY || shape.cornerRadius != radius else { return }
+        shape.widthInset = insetX
+        shape.heightInset = insetY
+        shape.cornerRadius = radius''')
     return s[:a] + lens + s[b:]
 
 

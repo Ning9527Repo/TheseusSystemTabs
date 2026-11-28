@@ -15,7 +15,7 @@ import tarfile
 from stage import ROOT, VENDOR, stage
 
 PKG = 'com.ning.27tabbar'
-VERSION = '0.2.26'
+VERSION = '0.2.27'
 MIN_IOS = '16.0'
 NAME = 'TheseusSystemTabs'
 BUNDLE = NAME + 'Resources.bundle'

@@ -26,6 +26,8 @@ jobs:
         run: python3 tests/test_hosted_compositor.py
       - name: Check platter rim antialiasing
         run: python3 tests/test_platter_edges.py
+      - name: Check WeChat metadata, actions and hook idempotence
+        run: python3 tests/test_wechat_adapter.py
       - name: Check Xcode Metal toolchain
         run: |
           xcodebuild -version

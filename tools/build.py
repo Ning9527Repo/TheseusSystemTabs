@@ -15,7 +15,7 @@ import tarfile
 from stage import ROOT, VENDOR, stage
 
 PKG = 'com.ning.27tabbar'
-VERSION = '0.2.30'
+VERSION = '0.2.31'
 MIN_IOS = '16.0'
 NAME = 'TheseusSystemTabs'
 BUNDLE = NAME + 'Resources.bundle'
@@ -137,6 +137,7 @@ def signed_macho(data, arch, install_name):
         p += length
     assert p == 32 + size and seen == {'ios16', 'id', 'sign'}, seen
     assert b'NGSystemTabsBridge' in data and b'TheseusTabBar' in data
+    assert b'NGWeChatTabsBridge' in data and b'onItemViewTouchUpInside:' in data
 
 
 def verify_deb(path, expected, arch, install_name, directory):
@@ -185,14 +186,18 @@ def build(arch, sdk):
     target = f'{arch}-apple-ios{MIN_IOS}'
     prefix = '@loader_path/.jbroot/' if arch == 'arm64e' else '/var/jb/'
     install_name = prefix + DYNAMIC + '/' + NAME + '.dylib'
-    host, dylib = out/'Host.o', out/(NAME+'.dylib')
-    run(*SDK_TOOL, 'clang', '-target', target, '-isysroot', sdk, '-O2', '-fobjc-arc', '-fblocks',
-        '-Wall', '-Wextra', '-Werror', '-c', ROOT/'Sources/Host.m', '-o', host)
+    dylib = out/(NAME+'.dylib')
+    objects = []
+    for source in sorted((ROOT/'Sources').glob('*.m')):
+        obj = out/(source.stem + '.o')
+        run(*SDK_TOOL, 'clang', '-target', target, '-isysroot', sdk, '-O2', '-fobjc-arc', '-fblocks',
+            '-Wall', '-Wextra', '-Werror', '-c', source, '-o', obj)
+        objects.append(obj)
     frameworks = [arg for n in ('UIKit','Foundation','Metal','MetalKit','QuartzCore','IOSurface','Accelerate','CoreGraphics') for arg in ('-framework',n)]
     run(*SDK_TOOL, 'swiftc', '-target', target, '-sdk', sdk, '-swift-version', '5', '-parse-as-library',
         '-O', '-whole-module-optimization', '-emit-library', '-module-name', NAME,
         '-module-cache-path', out/'ModuleCache', '-import-objc-header', ROOT/'Sources/Host.h',
-        *sorted(staged.glob('*.swift')), *sorted((ROOT/'Sources').glob('*.swift')), host, *frameworks,
+        *sorted(staged.glob('*.swift')), *sorted((ROOT/'Sources').glob('*.swift')), *objects, *frameworks,
         '-Xlinker', '-install_name', '-Xlinker', install_name, '-o', dylib)
     shader = VENDOR/'Sources/Theseus/Shaders/TheseusShaders.metal'
     air, metal = out/'Theseus.air', out/'default.metallib'

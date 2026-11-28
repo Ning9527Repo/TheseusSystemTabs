@@ -1,4 +1,5 @@
 #import <UIKit/UIKit.h>
+#import "WeChatHost.h"
 
 NS_ASSUME_NONNULL_BEGIN
 NSArray<UIControl *> * _Nullable NGSystemTabControls(UITabBar *bar, NSInteger expectedCount);

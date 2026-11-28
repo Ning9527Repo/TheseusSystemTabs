@@ -241,6 +241,11 @@ static void NGInstallAll(void) {
 __attribute__((constructor)) static void NGStart(void) {
     NSBundle *main = NSBundle.mainBundle;
     NSString *identifier = main.bundleIdentifier;
+    if (NGIsWeChatProcess()) {
+        if (NSThread.isMainThread) NGInstallWeChatTabs();
+        else dispatch_async(dispatch_get_main_queue(), ^{ NGInstallWeChatTabs(); });
+        return;
+    }
     if (![main.bundlePath.pathExtension isEqualToString:@"app"] || !identifier.length ||
         [identifier hasPrefix:@"com.tencent.xin"] || [identifier isEqualToString:@"com.apple.springboard"]) return;
     if (NSThread.isMainThread) NGInstallAll();

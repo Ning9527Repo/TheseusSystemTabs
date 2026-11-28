@@ -117,7 +117,7 @@ def tab(s, rep):
         contentView.bringSubviewToFront(container)''')
     s = rep(s, 'showsSelectedIcon: isSelected && !isDragging,',
             'showsSelectedIcon: isSelected && !(ngUseHostPosition && isDragging),')
-    s = rep(s, '        let restingTint = vibrantTint(selectedTintColor, over: selectionView.renderedCenterColor ?? selectionView.captureVeilColor)\n', '''        let hostedTint = ngUseHostPosition
+    s = rep(s, '        let restingTint = vibrantTint(selectedTintColor, over: selectionView.renderedCenterColor ?? selectionView.captureVeilColor)\n', '''        let hostedTint = ngUseHostPosition && !isDarkAppearance
             ? selectedTintColor.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))
             : nil
         let restingTint = hostedTint ?? vibrantTint(selectedTintColor, over: selectionView.renderedCenterColor ?? selectionView.captureVeilColor)

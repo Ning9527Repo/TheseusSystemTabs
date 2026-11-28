@@ -135,7 +135,9 @@ def check():
         assert 'selectionView.alpha = 0' in tab and 'selectionView.isHidden = true' in tab
         assert 'self.selectionView.isHidden = false' in shrink
         assert 'showsSelectedIcon: isSelected && !(ngUseHostPosition && isDragging)' in tab
-        assert 'let hostedTint = ngUseHostPosition' in tab
+        assert 'let hostedTint = ngUseHostPosition && !isDarkAppearance' in tab
+        assert 'hostedTint ?? vibrantTint(selectedTintColor, over: selectionView.renderedCenterColor ?? selectionView.captureVeilColor)' in tab
+        assert 'hostedTint ?? vibrantTint(selectedTintColor, over: lensBackdropColor, plus: lensTintBrightening)' in tab
         assert 'selectedTintColor.resolvedColor(with: UITraitCollection(userInterfaceStyle: .light))' in tab
         assert 'progress - 0.72' not in shrink
         edges = section(tab, '    private func updateEdgeLayers(', '    /// One composite of chrome')
